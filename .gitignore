@@ -124,6 +124,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+app.wsgi
+.flaskenv
 .env
 .venv
 env/
