@@ -9,6 +9,14 @@ python-dotenv = "*"
 flask-login = "*"
 authlib = "*"
 mysql-connector-python = "*"
+mysql = "*"
+flask-mysqldb = "*"
+email-validator = "*"
+flask-dance = "*"
+requests-oauthlib = "*"
+requests = "*"
+oauthlib = "*"
+pyopenssl = "*"
 
 [dev-packages]
 
