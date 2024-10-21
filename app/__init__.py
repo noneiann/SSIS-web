@@ -56,8 +56,9 @@ def create_app(test_config=None):
 
     # Register the blueprint
     from app.user import user_bp as user_blueprint
+    from app.student import student_bp as student_blueprint
     app.register_blueprint(user_blueprint)
-
+    app.register_blueprint(student_blueprint)
     return app
 
 

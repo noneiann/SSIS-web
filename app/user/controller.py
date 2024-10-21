@@ -14,24 +14,22 @@ def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 @user_bp.route('/')
-@login_required
-def index():
-    return render_template('student/index.html')
-
-
 @user_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('user.index'))
+        return redirect(url_for('student.index'))
     
     form = LoginForm()
     if form.validate_on_submit():
         user = User.get_by_email(form.email.data)
-        if user and user.check_password(form.password.data):
+        if user.google_id:
+            flash('Google login required for emails registered through Google', 'error')
+            return redirect(url_for('user.login'))  
+        elif user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            user.update_last_login()  # Add this line
-            next_page = request.args.get('next')
-            return redirect(next_page if next_page else url_for('user.index'))
+            user.update_last_login()
+            user.set_active()
+            return redirect(url_for('student.index'))
         flash('Invalid email or password', 'error')
     return render_template('login.html', form=form)
 
@@ -130,7 +128,7 @@ def register():
         User.create_user(
             username=form.username.data,
             email=form.email.data,
-            password=generate_password_hash(form.password.data)
+            password=form.password.data
         )
         flash('Registration successful! Please login.', 'success')
         return redirect(url_for('user.login'))
@@ -139,5 +137,7 @@ def register():
 @user_bp.route('/logout')
 @login_required
 def logout():
+    user = current_user
+    user.set_inactive()
     logout_user()
     return redirect(url_for('user.login'))

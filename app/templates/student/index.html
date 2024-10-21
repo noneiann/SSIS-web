@@ -10,6 +10,9 @@
 		<link
 			href="{{url_for('static', filename='css/navbar.css')}}"
 			rel="stylesheet" />
+		<link
+			href="{{url_for('static', filename='css/style.css')}}"
+			rel="stylesheet" />
 	</head>
 	<body class="bg-light">
 		<nav class="navbar navbar-expand-lg card-navbar">
@@ -39,20 +42,169 @@
 					<!-- Right Side Profile Section -->
 					<div class="profile-section">
 						<div class="profile-name">John Doe</div>
-						<a href="{{ url_for('user.logout') }}" class="logout-btn">
-							Logout
-						</a>
+						<a href="{{ url_for('user.logout') }}" class="logout-btn">Logout</a>
 					</div>
 				</div>
 			</div>
 		</nav>
 
+		<div class="container-fluid">
+			<div class="card-custom">
+				<div class="card-body">
+					<div class="title d-flex justify-content-between align-items-center">
+						<h1 class="card-title">Students</h1>
+						<button
+							class="btn btn-primary"
+							data-bs-toggle="modal"
+							data-bs-target="#addStudentModal">
+							<i class="fas fa-plus"></i> Add Student
+						</button>
+					</div>
+
+					<div class="row mt-2">
+						<table class="table">
+							<thead>
+								<tr>
+									<th scope="col">ID</th>
+									<th scope="col">Name</th>
+									<th scope="col">Year Level</th>
+									<th scope="col">Enrollment Status</th>
+									<th scope="col">Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for user in data %}
+								<tr>
+									<td>{{ user[0] }}</td>
+									<td>{{ user[1] }}</td>
+									<td>{{ user[2] }}</td>
+									<td>{{ user[3] }}</td>
+									<td>
+										<button class="btn btn-warning">Edit</button>
+										<button
+											class="btn btn-danger btn-delete"
+											data-id="{{ user[0] }}">
+											Delete
+										</button>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			class="modal fade"
+			id="addStudentModal"
+			tabindex="-1"
+			aria-labelledby="addStudentModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="addStudentModalLabel">Add Student</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="addStudentForm">
+							{{ studentform.hidden_tag() }}
+							<div class="mb-3">
+								{{ studentform.name.label(class="form-label") }} {{ studentform
+								.name(class="form-control", id="studentName", required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ studentform.yearLevel.label(class="form-label") }} {{
+								studentform.yearLevel(class="form-control", id="yearLevel",
+								required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ studentform.enrollmentStatus.label(class="form-label ") }} {{
+								studentform.enrollmentStatus(class="form-control",
+								id="enrollmentStatus", required=True) }}
+							</div>
+						</form>
+						<div class="error alert alert-danger d-none"></div>
+						<!-- Hide error message initially -->
+					</div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-bs-dismiss="modal">
+							Close
+						</button>
+						<button type="button" class="btn btn-primary" id="submitAddStudent">
+							Add Student
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 		<script>
-			function handleLogout() {
-				// Add your logout logic here
-				console.log("Logout clicked");
-			}
+			document
+				.getElementById("submitAddStudent")
+				.addEventListener("click", function () {
+					const name = document.getElementById("studentName").value;
+					const yearLevel = document.getElementById("yearLevel").value;
+					const enrollmentStatus =
+						document.getElementById("enrollmentStatus").value;
+					/*const program = document.getElementById("program").value;
+					const college = document.getElementById("college").value; */
+					const errorDiv = document.querySelector(".error");
+					const csrfToken = document.querySelector(
+						'#addStudentForm input[name="csrf_token"]'
+					).value;
+
+					errorDiv.classList.add("d-none");
+					errorDiv.innerText = "";
+
+					if (!name || !yearLevel || !enrollmentStatus) {
+						errorDiv.innerText = "Please fill out all fields.";
+						errorDiv.classList.remove("d-none");
+						return;
+					}
+
+					// Perform AJAX request to add the student (Assuming you have the URL set up)
+					fetch("/add_student", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"X-CSRFToken": csrfToken,
+						},
+						body: JSON.stringify({
+							name: name,
+							yearLevel: yearLevel,
+							enrollmentStatus: enrollmentStatus,
+						}),
+					})
+						.then((response) => {
+							if (!response.ok) {
+								return response.json().then((errorData) => {
+									throw errorData;
+								});
+							}
+							return response.json();
+						})
+						.then((result) => {
+							alert(result.message);
+							location.reload();
+						})
+						.catch((error) => {
+							errorDiv.innerText =
+								error.message || "An error occurred. Please try again.";
+							errorDiv.classList.remove("d-none");
+							console.error("Error:", error);
+						});
+				});
 		</script>
 	</body>
 </html>
