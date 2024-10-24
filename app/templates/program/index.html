@@ -29,10 +29,10 @@
 					<!-- Left Side Navigation -->
 					<ul class="navbar-nav me-auto">
 						<li class="nav-item">
-							<a class="nav-link active" href="#">Students</a>
+							<a class="nav-link" href="/">Students</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="/programs">Programs</a>
+							<a class="nav-link active" href="#">Programs</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="/colleges">Colleges</a>
@@ -52,12 +52,12 @@
 			<div class="card-custom">
 				<div class="card-body">
 					<div class="title d-flex justify-content-between align-items-center">
-						<h1 class="card-title">Students</h1>
+						<h1 class="card-title">Programs</h1>
 						<button
 							class="btn btn-primary"
 							data-bs-toggle="modal"
-							data-bs-target="#addStudentModal">
-							<i class="fas fa-plus"></i> Add Student
+							data-bs-target="#addProgramModal">
+							<i class="fas fa-plus"></i> Add Program
 						</button>
 					</div>
 
@@ -66,28 +66,28 @@
 							<thead>
 								<tr>
 									<th scope="col">ID</th>
+									<th scope="col">Course Code</th>
 									<th scope="col">Name</th>
-									<th scope="col">Year Level</th>
-									<th scope="col">Enrollment Status</th>
+									<th scope="col">College</th>
 									<th scope="col">Action</th>
 								</tr>
 							</thead>
 							<tbody>
-								{% for user in data %}
+								{% for program in data %}
 								<tr>
-									<td>{{ user[0] }}</td>
-									<td>{{ user[1] }}</td>
-									<td>{{ user[2] }}</td>
-									<td>{{ user[3] }}</td>
+									<td>{{ program[0] }}</td>
+									<td>{{ program[1] }}</td>
+									<td>{{ program[2] }}</td>
+									<td>{{ program[3] }}</td>
 									<td>
 										<button
 											class="btn btn-warning btn-edit"
-											data-id="{{ user[0] }}">
+											data-id="{{ program[0] }}">
 											Edit
 										</button>
 										<button
 											class="btn btn-danger btn-delete"
-											data-id="{{ user[0] }}">
+											data-id="{{ program[0] }}">
 											Delete
 										</button>
 									</td>
@@ -99,17 +99,16 @@
 				</div>
 			</div>
 		</div>
-
 		<div
 			class="modal fade"
-			id="addStudentModal"
+			id="addProgramModal"
 			tabindex="-1"
-			aria-labelledby="addStudentModalLabel"
+			aria-labelledby="addProgramModalLabel"
 			aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" id="addStudentModalLabel">Add Student</h5>
+						<h5 class="modal-title" id="addProgramModalLabel">Add Program</h5>
 						<button
 							type="button"
 							class="btn-close"
@@ -117,21 +116,22 @@
 							aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
-						<form id="addStudentForm">
-							{{ studentform.hidden_tag() }}
+						<form id="addProgramForm">
+							{{ programForm.hidden_tag() }}
 							<div class="mb-3">
-								{{ studentform.name.label(class="form-label") }} {{ studentform
-								.name(class="form-control", id="studentName", required=True) }}
+								{{ programForm.courseCode.label(class="form-label") }} {{
+								programForm.courseCode(class="form-control", id="courseCode",
+								required=True) }}
 							</div>
 							<div class="mb-3">
-								{{ studentform.yearLevel.label(class="form-label") }} {{
-								studentform.yearLevel(class="form-control form-select",
-								id="yearLevel", required=True) }}
+								{{ programForm.name.label(class="form-label") }} {{
+								programForm.name(class="form-control", id="name", required=True)
+								}}
 							</div>
 							<div class="mb-3">
-								{{ studentform.enrollmentStatus.label(class="form-label ") }} {{
-								studentform.enrollmentStatus(class="form-control form-select",
-								id="enrollmentStatus", required=True) }}
+								{{ programForm.college.label(class="form-label") }} {{
+								programForm.college(class="form-control form-select",
+								id="college", required=True) }}
 							</div>
 						</form>
 						<div class="error alert alert-danger d-none"></div>
@@ -144,69 +144,14 @@
 							data-bs-dismiss="modal">
 							Close
 						</button>
-						<button type="button" class="btn btn-primary" id="submitAddStudent">
+						<button type="button" class="btn btn-primary" id="submitAddProgram">
 							Add Student
 						</button>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div
-			class="modal fade"
-			id="editStudentModal"
-			tabindex="-1"
-			aria-labelledby="editStudentModalLabel"
-			aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="editStudentModalLabel">Edit Student</h5>
-						<button
-							type="button"
-							class="btn-close"
-							data-bs-dismiss="modal"
-							aria-label="Close"></button>
-					</div>
-					<div class="modal-body">
-						<form id="editStudentForm">
-							{{ studentform.hidden_tag() }}
-							<input type="hidden" id="editStudentId" />
-							<div class="mb-3">
-								{{ studentform.name.label(class="form-label") }} {{
-								studentform.name(class="form-control", id="editStudentName",
-								required=True) }}
-							</div>
-							<div class="mb-3">
-								{{ studentform.yearLevel.label(class="form-label") }} {{
-								studentform.yearLevel(class="form-control form-select",
-								id="editYearLevel", required=True) }}
-							</div>
-							<div class="mb-3">
-								{{ studentform.enrollmentStatus.label(class="form-label") }} {{
-								studentform.enrollmentStatus(class="form-control form-select",
-								id="editEnrollmentStatus", required=True) }}
-							</div>
-						</form>
-						<div class="error alert alert-danger d-none"></div>
-					</div>
-					<div class="modal-footer">
-						<button
-							type="button"
-							class="btn btn-secondary"
-							data-bs-dismiss="modal">
-							Close
-						</button>
-						<button
-							type="button"
-							class="btn btn-primary"
-							id="submitEditStudent">
-							Save Changes
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-		<script src="{{url_for('static', filename='js/student.js')}}"></script>
+		<script src="{{url_for('static', filename='js/program.js')}}"></script>
 	</body>
 </html>

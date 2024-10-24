@@ -107,7 +107,7 @@ def google_login_callback():
                 )
             
         login_user(user)
-        return redirect(url_for('user.index'))  
+        return redirect(url_for('student.index'))  
     except Exception as e:
         flash(f"Google authentication failed: {str(e)}", "error")
         return redirect(url_for('user.login'))

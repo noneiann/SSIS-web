@@ -201,3 +201,114 @@ class Student():
             program=program,
             college=college
         )
+
+    @staticmethod
+    def update_student(student_id, name, yearLevel, enrollmentStatus, program, college):
+        cursor = mysql.connection.cursor()
+        sql = """UPDATE student SET name = %s, yearLevel = %s, enrollmentStatus = %s, program = %s, college = %s WHERE id = %s"""
+        cursor.execute(sql, (name, yearLevel, enrollmentStatus, program, college, student_id))
+        mysql.connection.commit()
+        cursor.close()
+        return True
+    
+    @staticmethod
+    def delete_student(student_id):
+        cursor = mysql.connection.cursor()
+        sql = "DELETE FROM student WHERE id=%s"
+        cursor.execute(sql, (student_id,))
+        mysql.connection.commit()
+        cursor.close()
+        return True
+    
+
+
+class Program():
+    def __init__(self, id,courseCode,name,college):
+        self.id = id
+        self.courseCode = courseCode
+        self.name = name
+        self.college = college
+
+    @staticmethod
+    def get_all():
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM program')
+        programs = cursor.fetchall()
+        cursor.close()
+        return programs
+    
+    @staticmethod
+    def get_by_id(program_id):
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM program WHERE id = %s', (program_id,))
+        program = cursor.fetchone()
+        cursor.close()
+        if program:
+            return Program(
+                id=program[0],
+                courseCode=program[1],
+                name=program[2],
+                college=program[3]
+            )
+        return None
+    
+    @staticmethod
+    def add_program(courseCode, name, college):
+        cursor = mysql.connection.cursor()
+        sql = """INSERT INTO program (courseCode, name) 
+                 VALUES (%s, %s, %s)"""
+        cursor.execute(sql, (courseCode, name))
+        mysql.connection.commit()
+        
+        program_id = cursor.lastrowid
+        cursor.close()
+        
+        return Program(
+            id=program_id,
+            courseCode=courseCode,
+            name=name,
+
+        )
+    
+
+class College():
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
+
+    @staticmethod
+    def get_all():
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM college')
+        colleges = cursor.fetchall()
+        cursor.close()
+        return colleges
+    
+    @staticmethod
+    def get_by_id(college_id):
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM college WHERE id = %s', (college_id,))
+        college = cursor.fetchone()
+        cursor.close()
+        if college:
+            return College(
+                id=college[0],
+                name=college[1]
+            )
+        return None
+    
+    @staticmethod
+    def add_college(name):
+        cursor = mysql.connection.cursor()
+        sql = """INSERT INTO college (name) 
+                 VALUES (%s)"""
+        cursor.execute(sql, (name,))
+        mysql.connection.commit()
+        
+        college_id = cursor.lastrowid
+        cursor.close()
+        
+        return College(
+            id=college_id,
+            name=name
+        )
