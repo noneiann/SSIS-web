@@ -78,7 +78,7 @@
 									<td>{{ program[0] }}</td>
 									<td>{{ program[1] }}</td>
 									<td>{{ program[2] }}</td>
-									<td>{{ program[3] }}</td>
+									<td>{{ program[4] }}</td>
 									<td>
 										<button
 											class="btn btn-warning btn-edit"
@@ -145,7 +145,62 @@
 							Close
 						</button>
 						<button type="button" class="btn btn-primary" id="submitAddProgram">
-							Add Student
+							Add Program
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div
+			class="modal fade"
+			id="editProgramModal"
+			tabindex="-1"
+			aria-labelledby="editProgramModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="editProgramModalLabel">Edit Program</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="editProgramForm">
+							{{ programForm.hidden_tag() }}
+							<input type="hidden" id="editProgramId" />
+							<div class="mb-3">
+								{{ programForm.courseCode.label(class="form-label") }} {{
+								programForm.courseCode(class="form-control",
+								id="editCourseCode", required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ programForm.name.label(class="form-label") }} {{
+								programForm.name(class="form-control", id="editProgramName",
+								required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ programForm.college.label(class="form-label") }} {{
+								programForm.college(class="form-control", id="editCollege",
+								required=True) }}
+							</div>
+						</form>
+						<div class="error alert alert-danger d-none"></div>
+					</div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-bs-dismiss="modal">
+							Close
+						</button>
+						<button
+							type="button"
+							class="btn btn-primary"
+							id="submitEditProgram">
+							Save Changes
 						</button>
 					</div>
 				</div>

@@ -147,6 +147,7 @@ class User(UserMixin):
         mysql.connection.commit()
         cursor.close()
 
+
 class Student():   
     def __init__(self, id, name, yearlevel, enrollmentStatus, program, college):
         self.id = id
@@ -159,7 +160,12 @@ class Student():
     @staticmethod
     def get_all():
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM student')
+        cursor.execute('''
+            SELECT s.*, p.name as program_name, c.name as college_name 
+            FROM student s
+            LEFT JOIN program p ON s.program = p.id
+            LEFT JOIN college c ON p.college = c.id
+        ''')
         students = cursor.fetchall()
         cursor.close()
         return students
@@ -167,63 +173,63 @@ class Student():
     @staticmethod
     def get_by_id(student_id):
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM student WHERE id = %s', (student_id,))
+        cursor.execute('''
+            SELECT s.*, p.name as program_name, c.name as college_name 
+            FROM student s
+            LEFT JOIN program p ON s.program = p.id
+            LEFT JOIN college c ON p.college = c.id
+            WHERE s.id = %s
+        ''', (student_id,))
         student_data = cursor.fetchone()
         cursor.close()
-        
-        if student_data:
-            return Student(
-                id=student_data[0],
-                name=student_data[1],
-                yearlevel=student_data[2],
-                enrollmentStatus=student_data[3],
-                program=student_data[4],
-                college=student_data[5]
-            )
-        return None
+        return student_data
     
     @staticmethod
-    def add_student(name, yearlevel, enrollmentStatus, program, college):
+    def add_student(name, yearlevel, enrollmentStatus, program):
         cursor = mysql.connection.cursor()
-        sql = """INSERT INTO student (name, yearlevel, enrollmentStatus, program, college) 
-                 VALUES (%s, %s, %s, %s, %s)"""
-        cursor.execute(sql, (name, yearlevel, enrollmentStatus, program, college))
-        mysql.connection.commit()
-        
-        student_id = cursor.lastrowid
-        cursor.close()
-        
-        return Student(
-            id=student_id,
-            name=name,
-            yearlevel=yearlevel,
-            enrollmentStatus=enrollmentStatus,
-            program=program,
-            college=college
-        )
+        try:
+            sql = """INSERT INTO student (name, yearlevel, enrollmentStatus, program) 
+                     VALUES (%s, %s, %s, %s)"""
+            cursor.execute(sql, (name, yearlevel, enrollmentStatus, program))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            mysql.connection.rollback()
+            raise e
+        finally:
+            cursor.close()
 
     @staticmethod
-    def update_student(student_id, name, yearLevel, enrollmentStatus, program, college):
+    def update_student(student_id, name, yearLevel, enrollmentStatus, program):
         cursor = mysql.connection.cursor()
-        sql = """UPDATE student SET name = %s, yearLevel = %s, enrollmentStatus = %s, program = %s, college = %s WHERE id = %s"""
-        cursor.execute(sql, (name, yearLevel, enrollmentStatus, program, college, student_id))
-        mysql.connection.commit()
-        cursor.close()
-        return True
+        try:
+            sql = """UPDATE student SET name = %s, yearLevel = %s, enrollmentStatus = %s, 
+                     program = %s WHERE id = %s"""
+            cursor.execute(sql, (name, yearLevel, enrollmentStatus, program, student_id))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            mysql.connection.rollback()
+            raise e
+        finally:
+            cursor.close()
     
     @staticmethod
     def delete_student(student_id):
         cursor = mysql.connection.cursor()
-        sql = "DELETE FROM student WHERE id=%s"
-        cursor.execute(sql, (student_id,))
-        mysql.connection.commit()
-        cursor.close()
-        return True
-    
-
+        try:
+            sql = "DELETE FROM student WHERE id = %s"
+            cursor.execute(sql, (student_id,))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            mysql.connection.rollback()
+            raise e
+        finally:
+            cursor.close()
 
 class Program():
-    def __init__(self, id,courseCode,name,college):
+    def __init__(self, id, courseCode, name, college):
         self.id = id
         self.courseCode = courseCode
         self.name = name
@@ -232,7 +238,19 @@ class Program():
     @staticmethod
     def get_all():
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM program')
+        cursor.execute('''
+            SELECT p.*, c.name as college_name 
+            FROM program p
+            LEFT JOIN college c ON p.college = c.id
+        ''')
+        programs = cursor.fetchall()
+        cursor.close()
+        return programs
+    
+    @staticmethod
+    def get_by_college(college_id):
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM program WHERE college = %s', (college_id,))
         programs = cursor.fetchall()
         cursor.close()
         return programs
@@ -240,36 +258,44 @@ class Program():
     @staticmethod
     def get_by_id(program_id):
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM program WHERE id = %s', (program_id,))
+        cursor.execute('''
+            SELECT p.*, c.name as college_name 
+            FROM program p
+            LEFT JOIN college c ON p.college = c.id
+            WHERE p.id = %s
+        ''', (program_id,))
         program = cursor.fetchone()
         cursor.close()
-        if program:
-            return Program(
-                id=program[0],
-                courseCode=program[1],
-                name=program[2],
-                college=program[3]
-            )
-        return None
+        return program
     
     @staticmethod
     def add_program(courseCode, name, college):
         cursor = mysql.connection.cursor()
-        sql = """INSERT INTO program (courseCode, name) 
+        sql = """INSERT INTO program (courseCode, name, college) 
                  VALUES (%s, %s, %s)"""
-        cursor.execute(sql, (courseCode, name))
+        cursor.execute(sql, (courseCode, name, college))
         mysql.connection.commit()
-        
-        program_id = cursor.lastrowid
         cursor.close()
-        
-        return Program(
-            id=program_id,
-            courseCode=courseCode,
-            name=name,
-
-        )
+        return True
     
+    @staticmethod
+    def update_program(program_id, courseCode, name, college):
+        cursor = mysql.connection.cursor()
+        sql = """UPDATE program SET courseCode = %s, name = %s, college = %s 
+                 WHERE id = %s"""
+        cursor.execute(sql, (courseCode, name, college, program_id))
+        mysql.connection.commit()
+        cursor.close()
+        return True
+    
+    @staticmethod
+    def delete_program(program_id):
+        cursor = mysql.connection.cursor()
+        sql = "DELETE FROM program WHERE id = %s"
+        cursor.execute(sql, (program_id,))
+        mysql.connection.commit()
+        cursor.close()
+        return True
 
 class College():
     def __init__(self, id, name):
@@ -290,25 +316,31 @@ class College():
         cursor.execute('SELECT * FROM college WHERE id = %s', (college_id,))
         college = cursor.fetchone()
         cursor.close()
-        if college:
-            return College(
-                id=college[0],
-                name=college[1]
-            )
-        return None
+        return college
     
     @staticmethod
     def add_college(name):
         cursor = mysql.connection.cursor()
-        sql = """INSERT INTO college (name) 
-                 VALUES (%s)"""
+        sql = "INSERT INTO college (name) VALUES (%s)"
         cursor.execute(sql, (name,))
         mysql.connection.commit()
-        
-        college_id = cursor.lastrowid
         cursor.close()
-        
-        return College(
-            id=college_id,
-            name=name
-        )
+        return True
+    
+    @staticmethod
+    def update_college(college_id, name):
+        cursor = mysql.connection.cursor()
+        sql = "UPDATE college SET name = %s WHERE id = %s"
+        cursor.execute(sql, (name, college_id))
+        mysql.connection.commit()
+        cursor.close()
+        return True
+    
+    @staticmethod
+    def delete_college(college_id):
+        cursor = mysql.connection.cursor()
+        sql = "DELETE FROM college WHERE id = %s"
+        cursor.execute(sql, (college_id,))
+        mysql.connection.commit()
+        cursor.close()
+        return True

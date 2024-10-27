@@ -69,6 +69,8 @@
 									<th scope="col">Name</th>
 									<th scope="col">Year Level</th>
 									<th scope="col">Enrollment Status</th>
+									<th scope="col">Program</th>
+									<th scope="col">College</th>
 									<th scope="col">Action</th>
 								</tr>
 							</thead>
@@ -79,6 +81,8 @@
 									<td>{{ user[1] }}</td>
 									<td>{{ user[2] }}</td>
 									<td>{{ user[3] }}</td>
+									<td>{{ user[5] }}</td>
+									<td>{{ user[6] }}</td>
 									<td>
 										<button
 											class="btn btn-warning btn-edit"
@@ -120,8 +124,14 @@
 						<form id="addStudentForm">
 							{{ studentform.hidden_tag() }}
 							<div class="mb-3">
-								{{ studentform.name.label(class="form-label") }} {{ studentform
-								.name(class="form-control", id="studentName", required=True) }}
+								{{ studentform.name.label(class="form-label") }} {{
+								studentform.name(class="form-control", id="studentName",
+								required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ studentform.program.label(class="form-label") }} {{
+								studentform.program(class="form-control form-select",
+								id="program", required=True) }}
 							</div>
 							<div class="mb-3">
 								{{ studentform.yearLevel.label(class="form-label") }} {{
@@ -129,14 +139,14 @@
 								id="yearLevel", required=True) }}
 							</div>
 							<div class="mb-3">
-								{{ studentform.enrollmentStatus.label(class="form-label ") }} {{
+								{{ studentform.enrollmentStatus.label(class="form-label") }} {{
 								studentform.enrollmentStatus(class="form-control form-select",
 								id="enrollmentStatus", required=True) }}
 							</div>
 						</form>
 						<div class="error alert alert-danger d-none"></div>
-						<!-- Hide error message initially -->
 					</div>
+
 					<div class="modal-footer">
 						<button
 							type="button"
@@ -175,6 +185,11 @@
 								{{ studentform.name.label(class="form-label") }} {{
 								studentform.name(class="form-control", id="editStudentName",
 								required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ studentform.program.label(class="form-label") }} {{
+								studentform.program(class="form-control form-select",
+								id="editProgram", required=True) }}
 							</div>
 							<div class="mb-3">
 								{{ studentform.yearLevel.label(class="form-label") }} {{

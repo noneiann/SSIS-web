@@ -1,9 +1,14 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField,SelectField
+from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired
 
 class ProgramForm(FlaskForm):
     courseCode = StringField('Course Code', validators=[DataRequired()])
     name = StringField('Name', validators=[DataRequired()])
-    college = StringField('College')
+    college = SelectField('College', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+    def update_college_choices(self):
+        from app.models import College
+        colleges = College.get_all()
+        self.college.choices = [(str(college[0]), college[1]) for college in colleges]

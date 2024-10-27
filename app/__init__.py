@@ -50,11 +50,10 @@ def create_app(test_config=None):
 
     @login_manager.user_loader
     def load_user(user_id):
-        from app.models import User  # Import here to avoid circular imports
+        from app.models import User  
         return User.get_by_id(user_id)
 
 
-    # Register the blueprint
     from app.user import user_bp as user_blueprint
     from app.student import student_bp as student_blueprint
     from app.program import program_bp as program_blueprint

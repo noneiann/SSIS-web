@@ -5,8 +5,48 @@ from . import college_bp
 from app.models import User,Student,Program,College
 from app import client
 
+from .forms import CollegeForm
 
 @college_bp.route('/colleges')
 def programs():
     colleges = College.get_all()
-    return render_template('college/index.html', data=colleges)
+    return render_template('college/index.html', data=colleges, collegeForm = CollegeForm())
+
+@college_bp.route('/add_college', methods=['POST'])
+def add_college():
+    try:
+        data = request.get_json()
+        form = CollegeForm(formdata=None, data=data)
+
+        if form.validate():
+            college = College.add_college(
+                form.name.data,
+            )
+            flash('College added successfully', 'success')
+        return jsonify({'success': True, 'message': 'College added successfully'}), 200
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@college_bp.route('/update_college/<int:college_id>', methods=['PUT'])
+def update_college(college_id):
+    data = request.get_json()
+    form = CollegeForm(formdata=None, data=data)
+    if form.validate():
+        try:
+            College.update_college(
+                college_id,
+                form.name.data
+            )
+            return jsonify({'success': True, 'message': 'College updated successfully'}), 200
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)}), 500
+    return jsonify({'success': False, 'message': 'Validation failed', 'errors': form.errors}), 400
+
+@college_bp.route('/delete_college/<int:college_id>', methods=['DELETE'])
+def delete_college(college_id):
+    try:
+        College.delete_college(college_id)
+        return jsonify({'success': True, 'message': 'College deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500

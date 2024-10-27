@@ -4,8 +4,7 @@ document
 		const name = document.getElementById("studentName").value;
 		const yearLevel = document.getElementById("yearLevel").value;
 		const enrollmentStatus = document.getElementById("enrollmentStatus").value;
-		/*const program = document.getElementById("program").value;
-					const college = document.getElementById("college").value; */
+		const program = document.getElementById("program").value;
 		const errorDiv = document.querySelector(".error");
 		const csrfToken = document.querySelector(
 			'#addStudentForm input[name="csrf_token"]'
@@ -14,7 +13,7 @@ document
 		errorDiv.classList.add("d-none");
 		errorDiv.innerText = "";
 
-		if (!name || !yearLevel || !enrollmentStatus) {
+		if (!name || !yearLevel || !enrollmentStatus || !program) {
 			errorDiv.innerText = "Please fill out all fields.";
 			errorDiv.classList.remove("d-none");
 			return;
@@ -31,6 +30,7 @@ document
 				name: name,
 				yearLevel: yearLevel,
 				enrollmentStatus: enrollmentStatus,
+				program: program,
 			}),
 		})
 			.then((response) => {
