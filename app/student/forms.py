@@ -1,8 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 
 class StudentForm(FlaskForm):
+    studentIdYear = StringField('ID Number', validators=[DataRequired(), Length(min=4, max=4)])
+    studentIdNumber = StringField(validators=[DataRequired(), Length(min=4, max=4)])   
     name = StringField('Name', validators=[DataRequired()])
     program = SelectField('Program', validators=[DataRequired()])
     yearLevel = SelectField('Year Level', 

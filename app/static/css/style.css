@@ -40,3 +40,18 @@ body {
 td {
 	align-content: center;
 }
+
+.studentId {
+	width: 100px;
+	justify-content: space-between;
+}
+
+.studentField {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+}
+
+.idField {
+	width: 100px;
+}

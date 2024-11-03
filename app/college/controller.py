@@ -8,6 +8,7 @@ from app import client
 from .forms import CollegeForm
 
 @college_bp.route('/colleges')
+@login_required
 def programs():
     colleges = College.get_all()
     return render_template('college/index.html', data=colleges, collegeForm = CollegeForm())

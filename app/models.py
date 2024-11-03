@@ -185,14 +185,27 @@ class Student():
         return student_data
     
     @staticmethod
-    def add_student(name, yearlevel, enrollmentStatus, program):
+    def add_student(id_year, id_number, name, yearlevel, enrollmentStatus, program):
         cursor = mysql.connection.cursor()
         try:
-            sql = """INSERT INTO student (name, yearlevel, enrollmentStatus, program) 
-                     VALUES (%s, %s, %s, %s)"""
-            cursor.execute(sql, (name, yearlevel, enrollmentStatus, program))
+            # Format student ID
+            student_id = f"{id_year}-{id_number}"
+            
+            # Check if ID already exists
+            cursor.execute("SELECT id FROM student WHERE id = %s", (student_id,))
+            if cursor.fetchone():
+                raise ValueError("Student ID already exists")
+            
+            sql = """INSERT INTO student (id, name, yearlevel, enrollmentStatus, program) 
+                     VALUES (%s, %s, %s, %s, %s)"""
+            cursor.execute(sql, (student_id, name, yearlevel, enrollmentStatus, program))
             mysql.connection.commit()
             return True
+        except mysql.connector.IntegrityError as e:
+            mysql.connection.rollback()
+            if 'Duplicate entry' in str(e):
+                raise ValueError("Student ID already exists")
+            raise e
         except Exception as e:
             mysql.connection.rollback()
             raise e
@@ -206,6 +219,8 @@ class Student():
             sql = """UPDATE student SET name = %s, yearLevel = %s, enrollmentStatus = %s, 
                      program = %s WHERE id = %s"""
             cursor.execute(sql, (name, yearLevel, enrollmentStatus, program, student_id))
+            if cursor.rowcount == 0:
+                raise ValueError("Student not found")
             mysql.connection.commit()
             return True
         except Exception as e:
@@ -220,6 +235,8 @@ class Student():
         try:
             sql = "DELETE FROM student WHERE id = %s"
             cursor.execute(sql, (student_id,))
+            if cursor.rowcount == 0:
+                raise ValueError("Student not found")
             mysql.connection.commit()
             return True
         except Exception as e:

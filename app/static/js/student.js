@@ -1,6 +1,8 @@
 document
 	.getElementById("submitAddStudent")
 	.addEventListener("click", function () {
+		const idYear = document.getElementById("studentIdYear").value;
+		const idNumber = document.getElementById("studentIdNumber").value;
 		const name = document.getElementById("studentName").value;
 		const yearLevel = document.getElementById("yearLevel").value;
 		const enrollmentStatus = document.getElementById("enrollmentStatus").value;
@@ -13,13 +15,26 @@ document
 		errorDiv.classList.add("d-none");
 		errorDiv.innerText = "";
 
+		// Validate ID format
+		if (!idYear || !idNumber) {
+			errorDiv.innerText = "Student ID is required.";
+			errorDiv.classList.remove("d-none");
+			return;
+		}
+
+		if (idYear.length !== 4 || idNumber.length !== 4) {
+			errorDiv.innerText =
+				"ID Year must be 4 digits and ID Number must be 4 digits.";
+			errorDiv.classList.remove("d-none");
+			return;
+		}
+
 		if (!name || !yearLevel || !enrollmentStatus || !program) {
 			errorDiv.innerText = "Please fill out all fields.";
 			errorDiv.classList.remove("d-none");
 			return;
 		}
 
-		// Perform AJAX request to add the student (Assuming you have the URL set up)
 		fetch("/add_student", {
 			method: "POST",
 			headers: {
@@ -27,23 +42,22 @@ document
 				"X-CSRFToken": csrfToken,
 			},
 			body: JSON.stringify({
+				studentIdYear: idYear,
+				studentIdNumber: idNumber,
 				name: name,
 				yearLevel: yearLevel,
 				enrollmentStatus: enrollmentStatus,
 				program: program,
 			}),
 		})
-			.then((response) => {
-				if (!response.ok) {
-					return response.json().then((errorData) => {
-						throw errorData;
-					});
-				}
-				return response.json();
-			})
+			.then((response) => response.json())
 			.then((result) => {
-				alert(result.message);
-				location.reload();
+				if (result.success) {
+					alert(result.message);
+					location.reload();
+				} else {
+					throw new Error(result.message);
+				}
 			})
 			.catch((error) => {
 				errorDiv.innerText =
@@ -53,12 +67,6 @@ document
 			});
 	});
 
-function populateEditModal(studentId, name, yearLevel, enrollmentStatus) {
-	document.getElementById("editStudentId").value = studentId;
-	document.getElementById("editStudentName").value = name;
-	document.getElementById("editYearLevel").value = yearLevel;
-	document.getElementById("editEnrollmentStatus").value = enrollmentStatus;
-}
 document.querySelectorAll(".btn-edit").forEach((button) => {
 	button.addEventListener("click", function () {
 		const row = this.closest("tr");
@@ -66,8 +74,18 @@ document.querySelectorAll(".btn-edit").forEach((button) => {
 		const name = row.cells[1].textContent;
 		const yearLevel = row.cells[2].textContent;
 		const enrollmentStatus = row.cells[3].textContent;
+		const program = row.cells[4].textContent;
 
-		populateEditModal(studentId, name, yearLevel, enrollmentStatus);
+		const [year, number] = studentId.split("-");
+
+		document.getElementById("editStudentId").value = studentId;
+		document.getElementById("editStudentIdYear").value = year;
+		document.getElementById("editStudentIdNumber").value = number;
+		document.getElementById("editStudentName").value = name;
+		document.getElementById("editYearLevel").value = yearLevel;
+		document.getElementById("editEnrollmentStatus").value = enrollmentStatus;
+		document.getElementById("editProgram").value = program;
+
 		new bootstrap.Modal(document.getElementById("editStudentModal")).show();
 	});
 });
@@ -81,6 +99,7 @@ document
 		const enrollmentStatus = document.getElementById(
 			"editEnrollmentStatus"
 		).value;
+		const program = document.getElementById("editProgram").value;
 		const errorDiv = document.querySelector("#editStudentModal .error");
 		const csrfToken = document.querySelector(
 			'#editStudentForm input[name="csrf_token"]'
@@ -88,8 +107,8 @@ document
 
 		errorDiv.classList.add("d-none");
 
-		if (!name || !yearLevel || !enrollmentStatus) {
-			errorDiv.innerText = "Please fill out all fields.";
+		if (!name || !yearLevel || !enrollmentStatus || !program) {
+			errorDiv.innerText = "Please fill out all fields";
 			errorDiv.classList.remove("d-none");
 			return;
 		}
@@ -104,6 +123,7 @@ document
 				name: name,
 				yearLevel: yearLevel,
 				enrollmentStatus: enrollmentStatus,
+				program: program,
 			}),
 		})
 			.then((response) => response.json())
@@ -149,5 +169,11 @@ document.querySelectorAll(".btn-delete").forEach((button) => {
 					alert(error.message);
 				});
 		}
+	});
+});
+
+document.querySelectorAll(".idField").forEach((field) => {
+	field.addEventListener("input", function () {
+		this.value = this.value.replace(/\D/g, "");
 	});
 });

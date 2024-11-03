@@ -10,7 +10,7 @@ def index():
     form = StudentForm()
     students = Student.get_all()
     form.update_program_choices()
-    return render_template('student/index.html', data=students, studentform=form)
+    return render_template('student/index.html', data=students, studentform=form)   
 
 @student_bp.route('/add_student', methods=['POST'])
 @login_required
@@ -22,6 +22,8 @@ def add_student():
         
         if form.validate():
             Student.add_student(
+                form.studentIdYear.data,
+                form.studentIdNumber.data,
                 form.name.data,
                 form.yearLevel.data,
                 form.enrollmentStatus.data,
@@ -30,10 +32,12 @@ def add_student():
             return jsonify({'success': True, 'message': 'Student added successfully'})
         return jsonify({'success': False, 'message': 'Validation failed', 
                        'errors': form.errors}), 400
+    except ValueError as e:
+        return jsonify({'success': False, 'message': str(e)}), 400
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({'success': False, 'message': "There is already a student with that ID"}), 500
 
-@student_bp.route('/update_student/<int:student_id>', methods=['PUT'])
+@student_bp.route('/update_student/<string:student_id>', methods=['PUT'])
 @login_required
 def update_student(student_id):
     try:
@@ -52,14 +56,18 @@ def update_student(student_id):
             return jsonify({'success': True, 'message': 'Student updated successfully'})
         return jsonify({'success': False, 'message': 'Validation failed', 
                        'errors': form.errors}), 400
+    except ValueError as e:
+        return jsonify({'success': False, 'message': str(e)}), 400
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@student_bp.route('/delete_student/<int:student_id>', methods=['DELETE'])
+@student_bp.route('/delete_student/<string:student_id>', methods=['DELETE'])
 @login_required
 def delete_student(student_id):
     try:
         Student.delete_student(student_id)
         return jsonify({'success': True, 'message': 'Student deleted successfully'})
+    except ValueError as e:
+        return jsonify({'success': False, 'message': str(e)}), 400
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500

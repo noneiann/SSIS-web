@@ -39,9 +39,8 @@
 						</li>
 					</ul>
 
-					<!-- Right Side Profile Section -->
 					<div class="profile-section">
-						<div class="profile-name">John Doe</div>
+						<div class="profile-name">{{ user_display_name() }}</div>
 						<a href="{{ url_for('user.logout') }}" class="logout-btn">Logout</a>
 					</div>
 				</div>
@@ -123,6 +122,18 @@
 					<div class="modal-body">
 						<form id="addStudentForm">
 							{{ studentform.hidden_tag() }}
+							<div class="mb-3 studentId">
+								{{ studentform.studentIdYear.label(class="form-label") }}
+								<div class="studentField">
+									{{ studentform.studentIdYear(class="form-control idField",
+									id="studentIdYear", required=True) }}
+									<div class="" style="margin-left: 10px; margin-right: 10px">
+										-
+									</div>
+									{{ studentform.studentIdNumber(class="form-control idField",
+									id="studentIdNumber", required=True) }}
+								</div>
+							</div>
 							<div class="mb-3">
 								{{ studentform.name.label(class="form-label") }} {{
 								studentform.name(class="form-control", id="studentName",
@@ -181,6 +192,18 @@
 						<form id="editStudentForm">
 							{{ studentform.hidden_tag() }}
 							<input type="hidden" id="editStudentId" />
+							<div class="mb-3 studentId">
+								{{ studentform.studentIdYear.label(class="form-label") }}
+								<div class="studentField">
+									{{ studentform.studentIdYear(class="form-control idField",
+									id="editStudentIdYear", required=True) }}
+									<div class="" style="margin-left: 10px; margin-right: 10px">
+										-
+									</div>
+									{{ studentform.studentIdNumber(class="form-control idField",
+									id="editStudentIdNumber", required=True) }}
+								</div>
+							</div>
 							<div class="mb-3">
 								{{ studentform.name.label(class="form-label") }} {{
 								studentform.name(class="form-control", id="editStudentName",
