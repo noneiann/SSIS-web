@@ -59,9 +59,19 @@
 							<i class="fas fa-plus"></i> Add College
 						</button>
 					</div>
-
+					<div class="search-container">
+						<i class="fas fa-search search-icon"></i>
+						<select id="collegeSearchFilter" class="search-filter">
+							<option value="all">Search All</option>
+						</select>
+						<input
+							type="text"
+							id="collegeSearch"
+							class="search-input"
+							placeholder="Search colleges..." />
+					</div>
 					<div class="row mt-2">
-						<table class="table">
+						<table class="table" id="collegeTable">
 							<thead>
 								<tr>
 									<th scope="col">ID</th>
@@ -182,6 +192,20 @@
 				</div>
 			</div>
 		</div>
+		<script
+			src="https://kit.fontawesome.com/c064d25bcd.js"
+			crossorigin="anonymous"></script>
+		<script src="{{url_for('static', filename='js/livesearch.js')}}"></script>
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				setupLiveSearch(
+					"collegeTable",
+					"collegeSearch",
+					"collegeSearchFilter",
+					[{ value: "name", label: "Search by Name" }]
+				);
+			});
+		</script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 		<script src="{{url_for('static', filename='js/college.js')}}"></script>
 	</body>

@@ -52,6 +52,7 @@
 				<div class="card-body">
 					<div class="title d-flex justify-content-between align-items-center">
 						<h1 class="card-title">Students</h1>
+
 						<button
 							class="btn btn-primary"
 							data-bs-toggle="modal"
@@ -59,11 +60,22 @@
 							<i class="fas fa-plus"></i> Add Student
 						</button>
 					</div>
-
+					<div class="search-container">
+						<i class="fas fa-search search-icon"></i>
+						<select id="studentSearchFilter" class="search-filter">
+							<option value="all">Search All</option>
+						</select>
+						<input
+							type="text"
+							id="studentSearch"
+							class="search-input"
+							placeholder="Search students..." />
+					</div>
 					<div class="row mt-2">
-						<table class="table">
+						<table class="table" id="studentTable">
 							<thead>
 								<tr>
+									<th scope="col">Img</th>
 									<th scope="col">ID</th>
 									<th scope="col">Name</th>
 									<th scope="col">Year Level</th>
@@ -74,23 +86,30 @@
 								</tr>
 							</thead>
 							<tbody>
-								{% for user in data %}
+								{% for student in data %}
 								<tr>
-									<td>{{ user[0] }}</td>
-									<td>{{ user[1] }}</td>
-									<td>{{ user[2] }}</td>
-									<td>{{ user[3] }}</td>
-									<td>{{ user[5] }}</td>
-									<td>{{ user[6] }}</td>
+									<td>
+										<img
+											src="{{student[5] or url_for('static', filename='images/default.jpg')}}"
+											style="width: 200px; height: 200px"
+											alt="Profile Image" />
+									</td>
+									<td>{{ student[0] }}</td>
+									<td>{{ student[1] }}</td>
+									<td>{{ student[2] }}</td>
+									<td>{{ student[3] }}</td>
+									<td data-program-id="{{ student[4] }}">{{ student[6] }}</td>
+									<td>{{ student[7] }}</td>
+
 									<td>
 										<button
 											class="btn btn-warning btn-edit"
-											data-id="{{ user[0] }}">
+											data-id="{{ student[0] }}">
 											Edit
 										</button>
 										<button
 											class="btn btn-danger btn-delete"
-											data-id="{{ user[0] }}">
+											data-id="{{ student[0] }}">
 											Delete
 										</button>
 									</td>
@@ -153,6 +172,19 @@
 								{{ studentform.enrollmentStatus.label(class="form-label") }} {{
 								studentform.enrollmentStatus(class="form-control form-select",
 								id="enrollmentStatus", required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ studentform.image.label(class="form-label") }}
+								<div class="image-upload-container">
+									<img
+										id="imagePreview"
+										src="{{ url_for('static', filename='images/default.jpg') }}"
+										class="mb-2 img-preview"
+										alt="Preview"
+										style="width: 200px; height: 200px" />
+									{{ studentform.image(class="form-control", id="studentImage",
+									accept="image/*") }}
+								</div>
 							</div>
 						</form>
 						<div class="error alert alert-danger d-none"></div>
@@ -224,6 +256,16 @@
 								studentform.enrollmentStatus(class="form-control form-select",
 								id="editEnrollmentStatus", required=True) }}
 							</div>
+							<div class="image-upload-container">
+								<img
+									id="editImagePreview"
+									src="{{ url_for('static', filename='images/default.jpg') }}"
+									class="mb-2 img-preview"
+									alt="Preview"
+									style="width: 200px; height: 200px" />
+								{{ studentform.image(class="form-control",
+								id="editStudentImage", accept="image/*") }}
+							</div>
 						</form>
 						<div class="error alert alert-danger d-none"></div>
 					</div>
@@ -244,7 +286,24 @@
 				</div>
 			</div>
 		</div>
+		<script
+			src="https://kit.fontawesome.com/c064d25bcd.js"
+			crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 		<script src="{{url_for('static', filename='js/student.js')}}"></script>
+		<script src="{{url_for('static', filename='js/livesearch.js')}}"></script>
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				setupLiveSearch(
+					"studentTable",
+					"studentSearch",
+					"studentSearchFilter",
+					[
+						{ value: "id", label: "Search by ID" },
+						{ value: "name", label: "Search by Name" },
+					]
+				);
+			});
+		</script>
 	</body>
 </html>

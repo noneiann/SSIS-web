@@ -1,6 +1,9 @@
 from flask_login import UserMixin
 from app import mysql
 from werkzeug.security import generate_password_hash, check_password_hash
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 
 class User(UserMixin):
 
@@ -149,19 +152,20 @@ class User(UserMixin):
 
 
 class Student():   
-    def __init__(self, id, name, yearlevel, enrollmentStatus, program, college):
+    def __init__(self, id, name, yearlevel, enrollmentStatus, program, college, image=None):
         self.id = id
         self.name = name
         self.yearlevel = yearlevel
         self.enrollmentStatus = enrollmentStatus
         self.program = program
         self.college = college
+        self.image = image
 
     @staticmethod
     def get_all():
         cursor = mysql.connection.cursor()
         cursor.execute('''
-            SELECT s.*, p.name as program_name, c.name as college_name 
+            SELECT s.*, p.name as program, c.name as college_name 
             FROM student s
             LEFT JOIN program p ON s.program = p.id
             LEFT JOIN college c ON p.college = c.id
@@ -185,7 +189,7 @@ class Student():
         return student_data
     
     @staticmethod
-    def add_student(id_year, id_number, name, yearlevel, enrollmentStatus, program):
+    def add_student(id_year, id_number, name, yearlevel, enrollmentStatus, program, image=None):
         cursor = mysql.connection.cursor()
         try:
             # Format student ID
@@ -196,39 +200,50 @@ class Student():
             if cursor.fetchone():
                 raise ValueError("Student ID already exists")
             
-            sql = """INSERT INTO student (id, name, yearlevel, enrollmentStatus, program) 
-                     VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(sql, (student_id, name, yearlevel, enrollmentStatus, program))
+            # Handle image upload
+
+            # Insert student record
+            sql = """INSERT INTO student (id, name, yearlevel, enrollmentStatus, program, image) 
+                    VALUES (%s, %s, %s, %s, %s, %s)"""
+            cursor.execute(sql, (student_id, name, yearlevel, enrollmentStatus, program, image))
             mysql.connection.commit()
             return True
-        except mysql.connector.IntegrityError as e:
+        except Exception as e:
             mysql.connection.rollback()
             if 'Duplicate entry' in str(e):
                 raise ValueError("Student ID already exists")
             raise e
+        finally:
+            cursor.close()
+
+
+    @staticmethod
+    def update_student(student_id, updated_id, name, yearLevel, enrollmentStatus, program, image=None):
+        cursor = mysql.connection.cursor()
+
+        try:
+            # If image is not None (meaning a new image was uploaded)
+            if image is not None:
+                # Update with new image URL
+                sql = """UPDATE student SET id=%s, name = %s, yearLevel = %s, enrollmentStatus = %s, 
+                        program = %s, image = %s WHERE id = %s"""
+            
+                cursor.execute(sql, (updated_id, name, yearLevel, enrollmentStatus, program, image, student_id))
+            else:
+                # Update without changing image
+                sql = """UPDATE student SET id = "%s", name = %s, yearLevel = %s, enrollmentStatus = %s, 
+                        program = %s WHERE id = %s"""
+                cursor.execute(sql, (updated_id, name, yearLevel, enrollmentStatus, program, student_id))
+                
+            mysql.connection.commit()
+            return True
         except Exception as e:
             mysql.connection.rollback()
             raise e
         finally:
             cursor.close()
 
-    @staticmethod
-    def update_student(student_id, name, yearLevel, enrollmentStatus, program):
-        cursor = mysql.connection.cursor()
-        try:
-            sql = """UPDATE student SET name = %s, yearLevel = %s, enrollmentStatus = %s, 
-                     program = %s WHERE id = %s"""
-            cursor.execute(sql, (name, yearLevel, enrollmentStatus, program, student_id))
-            if cursor.rowcount == 0:
-                raise ValueError("Student not found")
-            mysql.connection.commit()
-            return True
-        except Exception as e:
-            mysql.connection.rollback()
-            raise e
-        finally:
-            cursor.close()
-    
+
     @staticmethod
     def delete_student(student_id):
         cursor = mysql.connection.cursor()

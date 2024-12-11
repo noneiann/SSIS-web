@@ -55,3 +55,65 @@ td {
 .idField {
 	width: 100px;
 }
+
+.search-container {
+	margin: 20px 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.search-input {
+	padding: 8px 12px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	width: 300px;
+	font-size: 14px;
+	transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+	outline: none;
+	border-color: #007bff;
+	box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.search-filter {
+	padding: 8px 12px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 14px;
+	min-width: 150px;
+	background-color: white;
+}
+
+.search-filter:focus {
+	outline: none;
+	border-color: #007bff;
+}
+
+.search-icon {
+	margin-right: 10px;
+	color: #6c757d;
+}
+
+.search-label {
+	font-size: 14px;
+	color: #6c757d;
+	margin-right: 5px;
+}
+.image-upload-container {
+	text-align: center;
+}
+
+.img-preview {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 5px;
+	margin-bottom: 10px;
+	object-fit: cover;
+}
+
+.img-preview:hover {
+	box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}

@@ -17,6 +17,7 @@ requests-oauthlib = "*"
 requests = "*"
 oauthlib = "*"
 pyopenssl = "*"
+cloudinary = "*"
 
 [dev-packages]
 

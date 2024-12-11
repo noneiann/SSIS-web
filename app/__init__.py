@@ -16,6 +16,9 @@ from flask_login import (
     logout_user,
 )
 
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 
 from oauthlib.oauth2 import WebApplicationClient
 import requests
@@ -31,7 +34,13 @@ login_manager = LoginManager()
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
-
+    
+    cloudinary.config( 
+    cloud_name = "dljekfcbb", 
+    api_key = "366459257666794", 
+    api_secret = "db5G1g9XiBhV1P3BiZ-b06FPvIM", # Click 'View API Keys' above to copy your API secret
+    secure=True
+    )
     # Load configuration from environment variables
     app.config.from_mapping(
         SECRET_KEY=SECRET_KEY,       
@@ -68,6 +77,19 @@ def create_app(test_config=None):
     app.register_blueprint(student_blueprint)
     app.register_blueprint(program_blueprint)
     app.register_blueprint(college_blueprint)
+
+    # Upload an image
+    upload_result = cloudinary.uploader.upload("https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
+                                           public_id="shoes")
+    print(upload_result["secure_url"])
+
+    # Optimize delivery by resizing and applying auto-format and auto-quality
+    optimize_url, _ = cloudinary_url("shoes", fetch_format="auto", quality="auto")
+    print(optimize_url)
+
+    # Transform the image: auto-crop to square aspect_ratio
+    auto_crop_url, _ = cloudinary_url("shoes", width=500, height=500, crop="auto", gravity="auto")
+    print(auto_crop_url)
     return app
 
 

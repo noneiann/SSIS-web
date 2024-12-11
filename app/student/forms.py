@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length
 
@@ -17,6 +18,8 @@ class StudentForm(FlaskForm):
                                  choices=[('Enrolled', 'Enrolled'), 
                                         ('Not Enrolled', 'Not Enrolled')], 
                                  validators=[DataRequired()])
+    image = FileField('Profile Picture', 
+                     validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
     submit = SubmitField('Submit')
 
     def update_program_choices(self):
