@@ -87,7 +87,7 @@
 							</thead>
 							<tbody>
 								{% for student in data %}
-								<tr>
+								<tr class="student-row">
 									<td>
 										<img
 											src="{{student[5] or url_for('static', filename='images/default.jpg')}}"
@@ -100,7 +100,6 @@
 									<td>{{ student[3] }}</td>
 									<td data-program-id="{{ student[4] }}">{{ student[6] }}</td>
 									<td>{{ student[7] }}</td>
-
 									<td>
 										<button
 											class="btn btn-warning btn-edit"
@@ -117,6 +116,9 @@
 								{% endfor %}
 							</tbody>
 						</table>
+						<div
+							id="pagination"
+							class="d-flex justify-content-center mt-3"></div>
 					</div>
 				</div>
 			</div>
@@ -303,6 +305,49 @@
 						{ value: "name", label: "Search by Name" },
 					]
 				);
+			});
+
+			document.addEventListener("DOMContentLoaded", function () {
+				// Configuration
+				const rowsPerPage = 5; // Number of rows per page
+				const table = document.getElementById("studentTable");
+				const rows = Array.from(table.querySelectorAll(".student-row"));
+				const pagination = document.getElementById("pagination");
+
+				function renderTablePage(page) {
+					const start = (page - 1) * rowsPerPage;
+					const end = start + rowsPerPage;
+					rows.forEach((row, index) => {
+						row.style.display = index >= start && index < end ? "" : "none";
+					});
+				}
+
+				function setupPagination(totalRows) {
+					const totalPages = Math.ceil(totalRows / rowsPerPage);
+					pagination.innerHTML = ""; // Clear existing pagination
+
+					for (let i = 1; i <= totalPages; i++) {
+						const button = document.createElement("button");
+						button.textContent = i;
+						button.className = "btn btn-outline-primary mx-1";
+						button.addEventListener("click", () => {
+							renderTablePage(i);
+							document
+								.querySelectorAll("#pagination button")
+								.forEach((btn) => btn.classList.remove("active"));
+							button.classList.add("active");
+						});
+
+						if (i === 1) {
+							button.classList.add("active");
+						}
+						pagination.appendChild(button);
+					}
+				}
+
+				// Initialize
+				renderTablePage(1);
+				setupPagination(rows.length);
 			});
 		</script>
 	</body>
