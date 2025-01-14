@@ -12,8 +12,9 @@ from cloudinary.utils import cloudinary_url
 def index():
     form = StudentForm()
     students = Student.get_all()
+    print(students)
     form.update_program_choices()
-    return render_template('student/index.html', data=students, studentform=form)   
+    return render_template('student/index.html', data=students, studentform=form)    
 
 @student_bp.route('/add_student', methods=['POST'])
 @login_required
@@ -69,6 +70,7 @@ def update_student(student_id):
                 image
             )
             return jsonify({'success': True, 'message': 'Student updated successfully'})
+        return jsonify({'success': True, 'message': 'Student updated successfully'})
         return jsonify({'success': False, 'message': 'Validation failed', 
                        'errors': form.errors}), 400
     except ValueError as e:
@@ -103,7 +105,7 @@ def upload_image():
     # Optional: Validate file type
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
     if not ('.' in file.filename and \
-            file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+        file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
         return jsonify({'error': 'Invalid file type'}), 400
 
     try:
@@ -125,5 +127,3 @@ def upload_image():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-

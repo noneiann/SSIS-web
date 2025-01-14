@@ -2,6 +2,7 @@ document
 	.getElementById("submitAddCollege")
 	.addEventListener("click", function () {
 		const collegeName = document.getElementById("name").value;
+		const abbreviation = document.getElementById("abbreviation").value;
 		const errorDiv = document.querySelector(".error");
 		const csrfToken = document.querySelector(
 			'#addCollegeForm input[name="csrf_token"]'
@@ -23,6 +24,7 @@ document
 				"X-CSRFToken": csrfToken,
 			},
 			body: JSON.stringify({
+				abbreviation: abbreviation,
 				name: collegeName,
 			}),
 		})
@@ -49,11 +51,12 @@ document
 document.querySelectorAll(".btn-edit").forEach((button) => {
 	button.addEventListener("click", function () {
 		const row = this.closest("tr");
-		const collegeId = this.dataset.id;
+		const collegeAbbreviation = this.dataset.id;
+		const abbreviation = row.cells[0].textContent;
 		const name = row.cells[1].textContent;
 
-		// Populate edit modal
-		document.getElementById("editCollegeId").value = collegeId;
+		document.getElementById("editCollegeId").value = collegeAbbreviation;
+		document.getElementById("editCollegeAbbreviation").value = abbreviation;
 		document.getElementById("editCollegeName").value = name;
 
 		new bootstrap.Modal(document.getElementById("editCollegeModal")).show();
@@ -63,7 +66,10 @@ document.querySelectorAll(".btn-edit").forEach((button) => {
 document
 	.getElementById("submitEditCollege")
 	.addEventListener("click", function () {
-		const collegeId = document.getElementById("editCollegeId").value;
+		const collegeAbbreviation = document.getElementById("editCollegeId").value;
+		const abbreviation = document.getElementById(
+			"editCollegeAbbreviation"
+		).value;
 		const name = document.getElementById("editCollegeName").value;
 		const errorDiv = document.querySelector("#editCollegeModal .error");
 		const csrfToken = document.querySelector(
@@ -78,13 +84,14 @@ document
 			return;
 		}
 
-		fetch(`/update_college/${collegeId}`, {
+		fetch(`/update_college/${collegeAbbreviation}`, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
 				"X-CSRFToken": csrfToken,
 			},
 			body: JSON.stringify({
+				abbreviation: abbreviation,
 				name: name,
 			}),
 		})
@@ -105,13 +112,13 @@ document
 
 document.querySelectorAll(".btn-delete").forEach((button) => {
 	button.addEventListener("click", function () {
-		const collegeId = this.dataset.id;
+		const collegeAbbreviation = this.dataset.id;
 		const csrfToken = document.querySelector(
 			'#addCollegeForm input[name="csrf_token"]'
 		).value;
 
 		if (confirm("Are you sure you want to delete this college?")) {
-			fetch(`/delete_college/${collegeId}`, {
+			fetch(`/delete_college/${collegeAbbreviation}`, {
 				method: "DELETE",
 				headers: {
 					"Content-Type": "application/json",

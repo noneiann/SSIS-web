@@ -151,37 +151,37 @@ class User(UserMixin):
         cursor.close()
 
 
-class Student():   
-    def __init__(self, id, name, yearlevel, enrollmentStatus, program, college, image=None):
+class Student():    
+    def __init__(self, id, name, yearlevel, enrollmentStatus, program, image=None):
         self.id = id
         self.name = name
         self.yearlevel = yearlevel
         self.enrollmentStatus = enrollmentStatus
         self.program = program
-        self.college = college
         self.image = image
 
     @staticmethod
     def get_all():
         cursor = mysql.connection.cursor()
         cursor.execute('''
-            SELECT s.*, p.name as program, c.name as college_name 
+            SELECT s.*, p.courseCode as program, c.name as college_name 
             FROM student s
-            LEFT JOIN program p ON s.program = p.id
-            LEFT JOIN college c ON p.college = c.id
+            LEFT JOIN program p ON s.program = p.courseCode
+            LEFT JOIN college c ON p.college = c.abbreviation
         ''')
         students = cursor.fetchall()
         cursor.close()
         return students
 
+
     @staticmethod
     def get_by_id(student_id):
         cursor = mysql.connection.cursor()
         cursor.execute('''
-            SELECT s.*, p.name as program_name, c.name as college_name 
+            SELECT s.*, p.courseCode as program_code, c.name as college_name 
             FROM student s
-            LEFT JOIN program p ON s.program = p.id
-            LEFT JOIN college c ON p.college = c.id
+            LEFT JOIN program p ON s.program = p.courseCode
+            LEFT JOIN college c ON p.college = c.name
             WHERE s.id = %s
         ''', (student_id,))
         student_data = cursor.fetchone()
@@ -200,11 +200,9 @@ class Student():
             if cursor.fetchone():
                 raise ValueError("Student ID already exists")
             
-            # Handle image upload
-
             # Insert student record
             sql = """INSERT INTO student (id, name, yearlevel, enrollmentStatus, program, image) 
-                    VALUES (%s, %s, %s, %s, %s, %s)"""
+                     VALUES (%s, %s, %s, %s, %s, %s)"""
             cursor.execute(sql, (student_id, name, yearlevel, enrollmentStatus, program, image))
             mysql.connection.commit()
             return True
@@ -226,13 +224,13 @@ class Student():
             if image is not None:
                 # Update with new image URL
                 sql = """UPDATE student SET id=%s, name = %s, yearLevel = %s, enrollmentStatus = %s, 
-                        program = %s, image = %s WHERE id = %s"""
-            
+                         program = %s, image = %s WHERE id = %s"""
+                
                 cursor.execute(sql, (updated_id, name, yearLevel, enrollmentStatus, program, image, student_id))
             else:
                 # Update without changing image
-                sql = """UPDATE student SET id = "%s", name = %s, yearLevel = %s, enrollmentStatus = %s, 
-                        program = %s WHERE id = %s"""
+                sql = """UPDATE student SET id = %s, name = %s, yearLevel = %s, enrollmentStatus = %s, 
+                         program = %s WHERE id = %s"""
                 cursor.execute(sql, (updated_id, name, yearLevel, enrollmentStatus, program, student_id))
                 
             mysql.connection.commit()
@@ -259,10 +257,8 @@ class Student():
             raise e
         finally:
             cursor.close()
-
 class Program():
-    def __init__(self, id, courseCode, name, college):
-        self.id = id
+    def __init__(self, courseCode, name, college):
         self.courseCode = courseCode
         self.name = name
         self.college = college
@@ -273,16 +269,16 @@ class Program():
         cursor.execute('''
             SELECT p.*, c.name as college_name 
             FROM program p
-            LEFT JOIN college c ON p.college = c.id
+            LEFT JOIN college c ON p.college = c.abbreviation
         ''')
         programs = cursor.fetchall()
         cursor.close()
         return programs
     
     @staticmethod
-    def get_by_college(college_id):
+    def get_by_college(college_name):
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM program WHERE college = %s', (college_id,))
+        cursor.execute('SELECT * FROM program WHERE college = %s', (college_name,))
         programs = cursor.fetchall()
         cursor.close()
         return programs
@@ -293,8 +289,8 @@ class Program():
         cursor.execute('''
             SELECT p.*, c.name as college_name 
             FROM program p
-            LEFT JOIN college c ON p.college = c.id
-            WHERE p.id = %s
+            LEFT JOIN college c ON p.college = c.name
+            WHERE p.courseCode = %s
         ''', (program_id,))
         program = cursor.fetchone()
         cursor.close()
@@ -314,7 +310,7 @@ class Program():
     def update_program(program_id, courseCode, name, college):
         cursor = mysql.connection.cursor()
         sql = """UPDATE program SET courseCode = %s, name = %s, college = %s 
-                 WHERE id = %s"""
+                 WHERE courseCode = %s"""
         cursor.execute(sql, (courseCode, name, college, program_id))
         mysql.connection.commit()
         cursor.close()
@@ -323,15 +319,15 @@ class Program():
     @staticmethod
     def delete_program(program_id):
         cursor = mysql.connection.cursor()
-        sql = "DELETE FROM program WHERE id = %s"
+        sql = "DELETE FROM program WHERE courseCode = %s"
         cursor.execute(sql, (program_id,))
         mysql.connection.commit()
         cursor.close()
         return True
 
 class College():
-    def __init__(self, id, name):
-        self.id = id
+    def __init__(self, abbreviation, name):
+        self.abbreviation = abbreviation
         self.name = name
 
     @staticmethod
@@ -341,38 +337,39 @@ class College():
         colleges = cursor.fetchall()
         cursor.close()
         return colleges
-    
+
     @staticmethod
-    def get_by_id(college_id):
+    def get_by_id(college_abbreviation):
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM college WHERE id = %s', (college_id,))
+        cursor.execute('SELECT * FROM college WHERE abbreviation = %s', (college_abbreviation,))
         college = cursor.fetchone()
         cursor.close()
         return college
-    
+
     @staticmethod
-    def add_college(name):
+    def add_college(abbreviation, name):
         cursor = mysql.connection.cursor()
-        sql = "INSERT INTO college (name) VALUES (%s)"
-        cursor.execute(sql, (name,))
+        sql = "INSERT INTO college (abbreviation, name) VALUES (%s, %s)" 
+        cursor.execute(sql, (abbreviation, name))
         mysql.connection.commit()
         cursor.close()
         return True
-    
+
     @staticmethod
-    def update_college(college_id, name):
+    def update_college(college_abbreviation, abbreviation, name):  # Make sure to update this method as well
         cursor = mysql.connection.cursor()
-        sql = "UPDATE college SET name = %s WHERE id = %s"
-        cursor.execute(sql, (name, college_id))
+        sql = "UPDATE college SET abbreviation = %s, name = %s WHERE abbreviation = %s"
+        cursor.execute(sql, (abbreviation, name, college_abbreviation))
         mysql.connection.commit()
         cursor.close()
         return True
-    
+
     @staticmethod
-    def delete_college(college_id):
+    def delete_college(college_abbreviation):  # Make sure to update this method as well
         cursor = mysql.connection.cursor()
-        sql = "DELETE FROM college WHERE id = %s"
-        cursor.execute(sql, (college_id,))
+        sql = "DELETE FROM college WHERE abbreviation = %s"
+        cursor.execute(sql, (college_abbreviation,))
         mysql.connection.commit()
         cursor.close()
         return True
+

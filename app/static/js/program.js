@@ -63,7 +63,6 @@ document.querySelectorAll(".btn-edit").forEach((button) => {
 		const courseCode = row.cells[1].textContent;
 		const name = row.cells[2].textContent;
 		const college = row.cells[3].textContent;
-
 		// Populate edit modal
 		document.getElementById("editProgramId").value = programId;
 		document.getElementById("editCourseCode").value = courseCode;

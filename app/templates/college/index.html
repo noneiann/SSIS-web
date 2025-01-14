@@ -26,7 +26,6 @@
 					<span class="navbar-toggler-icon"></span>
 				</button>
 				<div class="collapse navbar-collapse" id="navbarNav">
-					<!-- Left Side Navigation -->
 					<ul class="navbar-nav me-auto">
 						<li class="nav-item">
 							<a class="nav-link" href="/">Students</a>
@@ -84,7 +83,7 @@
 								<tr class="collegeRow">
 									<td>{{ college[0] }}</td>
 									<td>{{ college[1] }}</td>
-
+								
 									<td>
 										<button
 											class="btn btn-warning btn-edit"
@@ -109,89 +108,60 @@
 				</div>
 			</div>
 		</div>
-		<div
-			class="modal fade"
-			id="addCollegeModal"
-			tabindex="-1"
-			aria-labelledby="addCollegeModalLabel"
-			aria-hidden="true">
+
+		<div class="modal fade" id="addCollegeModal" tabindex="-1" aria-labelledby="addCollegeModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title" id="addCollegeModalLabel">Add College</h5>
-						<button
-							type="button"
-							class="btn-close"
-							data-bs-dismiss="modal"
-							aria-label="Close"></button>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
 						<form id="addCollegeForm">
 							{{ collegeForm.hidden_tag() }}
 							<div class="mb-3">
-								{{ collegeForm.name.label(class="form-label") }} {{
-								collegeForm.name(class="form-control", id="name", required=True)
-								}}
+								{{ collegeForm.abbreviation.label(class="form-label") }} 
+								{{ collegeForm.abbreviation(class="form-control", id="abbreviation", required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ collegeForm.name.label(class="form-label") }} 
+								{{ collegeForm.name(class="form-control", id="name", required=True) }}
 							</div>
 						</form>
-						<div class="error alert alert-danger d-none"></div>
-						<!-- Hide error message initially -->
+						<div class="error alert alert-danger d-none"></div> 
 					</div>
 					<div class="modal-footer">
-						<button
-							type="button"
-							class="btn btn-secondary"
-							data-bs-dismiss="modal">
-							Close
-						</button>
-						<button type="button" class="btn btn-primary" id="submitAddCollege">
-							Add College
-						</button>
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" id="submitAddCollege">Add College</button>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div
-			class="modal fade"
-			id="editCollegeModal"
-			tabindex="-1"
-			aria-labelledby="editCollegeModalLabel"
-			aria-hidden="true">
+		<div class="modal fade" id="editCollegeModal" tabindex="-1" aria-labelledby="editCollegeModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title" id="editCollegeModalLabel">Edit College</h5>
-						<button
-							type="button"
-							class="btn-close"
-							data-bs-dismiss="modal"
-							aria-label="Close"></button>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
 						<form id="editCollegeForm">
 							{{ collegeForm.hidden_tag() }}
-							<input type="hidden" id="editCollegeId" />
+							<input type="hidden" id="editCollegeId">
 							<div class="mb-3">
-								{{ collegeForm.name.label(class="form-label") }} {{
-								collegeForm.name(class="form-control", id="editCollegeName",
-								required=True) }}
+								{{ collegeForm.abbreviation.label(class="form-label") }} 
+								{{ collegeForm.abbreviation(class="form-control", id="editCollegeAbbreviation", required=True) }}
+							</div>
+							<div class="mb-3">
+								{{ collegeForm.name.label(class="form-label") }} 
+								{{ collegeForm.name(class="form-control", id="editCollegeName", required=True) }}
 							</div>
 						</form>
-						<div class="error alert alert-danger d-none"></div>
+						<div class="error alert alert-danger d-none"></div> 
 					</div>
 					<div class="modal-footer">
-						<button
-							type="button"
-							class="btn btn-secondary"
-							data-bs-dismiss="modal">
-							Close
-						</button>
-						<button
-							type="button"
-							class="btn btn-primary"
-							id="submitEditCollege">
-							Save Changes
-						</button>
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" id="submitEditCollege">Save</button>
 					</div>
 				</div>
 			</div>
@@ -209,14 +179,14 @@
 					[{ value: "name", label: "Search by Name" }]
 				);
 			});
-
+		
 			document.addEventListener("DOMContentLoaded", function () {
 				// Configuration
 				const rowsPerPage = 5;
 				const table = document.getElementById("collegeTable");
 				const rows = Array.from(table.querySelectorAll(".collegeRow"));
 				const pagination = document.getElementById("pagination");
-
+		
 				function renderTablePage(page) {
 					const start = (page - 1) * rowsPerPage;
 					const end = start + rowsPerPage;
@@ -224,11 +194,11 @@
 						row.style.display = index >= start && index < end ? "" : "none";
 					});
 				}
-
+		
 				function setupPagination(totalRows) {
 					const totalPages = Math.ceil(totalRows / rowsPerPage);
 					pagination.innerHTML = ""; // Clear existing pagination
-
+		
 					for (let i = 1; i <= totalPages; i++) {
 						const button = document.createElement("button");
 						button.textContent = i;
@@ -240,14 +210,14 @@
 								.forEach((btn) => btn.classList.remove("active"));
 							button.classList.add("active");
 						});
-
+		
 						if (i === 1) {
 							button.classList.add("active");
 						}
 						pagination.appendChild(button);
 					}
 				}
-
+		
 				renderTablePage(1);
 				setupPagination(rows.length);
 			});

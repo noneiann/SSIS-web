@@ -10,6 +10,7 @@ from .forms import ProgramForm
 def programs():
     form = ProgramForm()
     programs = Program.get_all()
+    print(programs)
     form.update_college_choices()
     return render_template('program/index.html', data=programs, programForm=form)
 
@@ -33,7 +34,7 @@ def add_program():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@program_bp.route('/update_program/<int:program_id>', methods=['PUT'])
+@program_bp.route('/update_program/<string:program_id>', methods=['PUT'])
 @login_required
 def update_program(program_id):
     try:
@@ -54,7 +55,7 @@ def update_program(program_id):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@program_bp.route('/delete_program/<int:program_id>', methods=['DELETE'])
+@program_bp.route('/delete_program/<string:program_id>', methods=['DELETE'])
 @login_required
 def delete_program(program_id):
     try:
