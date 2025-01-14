@@ -60,9 +60,9 @@ document.querySelectorAll(".btn-edit").forEach((button) => {
 	button.addEventListener("click", function () {
 		const row = this.closest("tr");
 		const programId = this.dataset.id;
-		const courseCode = row.cells[1].textContent;
-		const name = row.cells[2].textContent;
-		const college = row.cells[3].textContent;
+		const courseCode = row.cells[0].textContent;
+		const name = row.cells[1].textContent;
+		const college = row.cells[2].textContent;
 		// Populate edit modal
 		document.getElementById("editProgramId").value = programId;
 		document.getElementById("editCourseCode").value = courseCode;
